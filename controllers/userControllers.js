@@ -26,9 +26,9 @@ const allUserController = async (req, res, next) => {
 
 const registerController = async (req, res, next) => {
     try {
-        const { name, username, email, password, avatar, phoneNumber, department } = req.body;
+        const { firstName, lastName, email, password, avatar } = req.body;
 
-        if (!name || !username || !email || !password || !phoneNumber || !department) {
+        if (!firstName || !email || !password) {
             return next(new AppError("All fields are required for registration", 400));
         }
 
@@ -39,13 +39,11 @@ const registerController = async (req, res, next) => {
         }
 
         const user = await User.create({
-            name,
-            username,
+            firstName,
+            lastName,
             email,
             password,
             avatar: avatar || null,
-            phoneNumber,
-            department
         });
 
         if (!user) {
@@ -99,7 +97,8 @@ const loginController = async (req, res, next) => {
         res.status(200).send({
             success: true,
             message: "User Logged in successfully",
-            data: user
+            user: user,
+            token: token
         });
     }
     catch (error) {
@@ -127,37 +126,8 @@ const validateTokenController = async (req, res, next) => {
     }
 }
 
-const saveFcmTokenController = async (req, res, next) => {
-    try {
-        const { userId, token } = req.body;
-
-        const isUserExist = await User.findById(userId);
-
-        if (!isUserExist) {
-            return next(new AppError("User not found with this id", 400))
-        }
-
-        if (!isUserExist.fcmTokens.includes(token)) {
-            isUserExist.fcmTokens.push(token);
-            await isUserExist.save();
-        }
-
-        res.status(200).send({
-            success: true
-        })
-    } catch (error) {
-        return next(new AppError(error.message, 500))
-    }
-}
-
 const logoutController = async (req, res, next) => {
     try {
-        const { userId, token } = req.body;
-
-        await User.findByIdAndUpdate(userId, {
-            $pull: {fcmTokens: token}
-        });
-
         res.cookie('token', null, {
             secure: true,
             maxAge: 0,
@@ -195,7 +165,7 @@ const profileController = async (req, res, next) => {
 
 const updateProfileController = async (req, res, next) => {
     try {
-        const { name, phoneNumber, avatar } = req.body;
+        const { firstName, lastName, avatar } = req.body;
         const { id } = req.params;
 
         const isUserExist = await User.findById(id);
@@ -204,14 +174,14 @@ const updateProfileController = async (req, res, next) => {
             return next(new AppError("User is not avialble with this id", 400));
         }
 
-        if (!name || !phoneNumber) {
+        if (!firstName || !lastName) {
             return next(new AppError("Name and Phone Number is required", 400))
         }
 
-        const user = await User.findByIdAndUpdate(id, {name: name, phoneNumber: phoneNumber, avatar: avatar}, {runValidators: true, new: true});
+        const user = await User.findByIdAndUpdate(id, {firstName: firstName, lastName: lastName, avatar: avatar}, {runValidators: true, new: true});
 
         if (!user) {
-            return next(new AppError("Product not updated. Please try again"))
+            return next(new AppError("Profile not updated. Please try again"))
         }
 
         res.status(200).send({
@@ -400,4 +370,4 @@ const changePasswordByAdminController = async (req, res, next) => {
     }
 }
 
-export { allUserController, registerController, loginController, validateTokenController, logoutController, profileController, updateProfileController, deleteProfileController, changePasswordController, forgotPasswordController, resetPasswordController, changePasswordByAdminController, saveFcmTokenController };
+export { allUserController, registerController, loginController, validateTokenController, logoutController, profileController, updateProfileController, deleteProfileController, changePasswordController, forgotPasswordController, resetPasswordController, changePasswordByAdminController };

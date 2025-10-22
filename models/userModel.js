@@ -4,17 +4,16 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
 const userSchema = new Schema({
-    name: {
+    firstName: {
         type: String,
-        required: [true, "Name is required"],
+        required: [true, "First Name is required"],
         minLength: [4, "Name must be atleast 5 character"],
         maxLength: [40, "Name should be less then 40 character"],
         trim: true
     },
-    username: {
+    lastName: {
         type: String,
-        required: [true, "Username is required"],
-        minLength: [5, "Username must be atleast 5 character"],
+        minLength: [3, "Last Name must be atleast 5 character"],
         trim: true,
         unique: true
     },
@@ -32,12 +31,6 @@ const userSchema = new Schema({
     },
     avatar: {
         type: String,
-    },
-    phoneNumber: {
-        type: Number,
-        required: [true, "Phone Number is required"],
-        minLength:[10,"Phone Number must be of 10 numbers"],
-        trim: true
     },
     role: {
         type: String,
@@ -61,7 +54,7 @@ userSchema.pre('save', async function(next) {
 userSchema.methods = {
     generateJWTToken: async function() {
         return await jwt.sign(
-            {_id: this._id, username: this.username, name: this.name, email: this.email, role: this.role},
+            {_id: this._id, firstName: this.firstName, email: this.email, role: this.role},
             process.env.JWT_SECRET,
             {
                 expiresIn: process.env.JWT_EXPIRY

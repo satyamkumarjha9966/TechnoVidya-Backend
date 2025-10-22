@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { isLoggedin, authorizedRole } from "../middlewares/authMiddleware.js";
-import { allUserController, registerController, loginController, validateTokenController, logoutController, profileController, updateProfileController, deleteProfileController, changePasswordController, forgotPasswordController, resetPasswordController, changePasswordByAdminController, saveFcmTokenController } from "../controllers/userControllers.js";
+import { allUserController, registerController, loginController, validateTokenController, logoutController, profileController, updateProfileController, deleteProfileController, changePasswordController, forgotPasswordController, resetPasswordController, changePasswordByAdminController } from "../controllers/userControllers.js";
 
 const userRoutes = Router();
 
@@ -8,7 +8,6 @@ const userRoutes = Router();
 userRoutes.route("/register").post(registerController);
 userRoutes.route("/login").post(loginController);
 userRoutes.route("/validate").get(validateTokenController);
-userRoutes.route("/save-fcm-token").post(saveFcmTokenController);
 userRoutes.route("/logout").post(logoutController);
 userRoutes.route("/profile/:id").get(isLoggedin, profileController).patch(isLoggedin, updateProfileController).delete(isLoggedin, deleteProfileController);
 userRoutes.route("/change-password/:id").post(isLoggedin, changePasswordController);
